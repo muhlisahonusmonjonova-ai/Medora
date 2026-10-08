@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="uz" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f8f8">
+  <meta name="description" content="Find a trusted specialist and book your next visit with Medora.">
+  <title>Medora — Find your doctor</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f3f8f8;
+      --surface: rgba(255, 255, 255, .78);
+      --surface-solid: #fff;
+      --surface-soft: #edf6f4;
+      --text: #183b43;
+      --text-soft: #527078;
+      --muted: #84999c;
+      --line: rgba(71, 125, 129, .15);
+      --accent: #188b83;
+      --accent-strong: #116e70;
+      --accent-soft: #e3f4ef;
+      --shadow: 0 14px 38px rgba(39, 89, 91, .09);
+      --backdrop: rgba(20, 48, 54, .52);
+      --font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --page: #101b21;
+      --surface: rgba(27, 42, 49, .86);
+      --surface-solid: #1b2a31;
+      --surface-soft: #21383b;
+      --text: #e6f1ef;
+      --text-soft: #b0c7c5;
+      --muted: #94acab;
+      --line: rgba(167, 208, 201, .14);
+      --accent: #67c8b4;
+      --accent-strong: #8ce0cd;
+      --accent-soft: #243e3e;
+      --shadow: 0 16px 42px rgba(0, 0, 0, .24);
+      --backdrop: rgba(0, 8, 12, .72);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--text);
+      background: linear-gradient(125deg, #eff7f6, #edf4f7 45%, #e8f4f0 72%, #f2f7f8);
+      background-size: 220% 220%;
+      animation: gradient-flow 30s ease-in-out infinite;
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      transition: color .28s ease, background .28s ease;
+    }
+    html[data-theme="dark"] body {
+      background: linear-gradient(130deg, #101b21, #14262c 48%, #142b2b 78%, #111e26);
+      background-size: 220% 220%;
+    }
+    button, input, select { font: inherit; }
+    button, select { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .float-field { position: fixed; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; }
+    .bubble { position: absolute; display: grid; place-items: center; border: 1px solid rgba(52, 153, 143, .13); border-radius: 50%; color: rgba(36, 143, 133, .2); background: rgba(112, 196, 180, .065); animation: drift 19s ease-in-out infinite; }
+    .bubble-one { width: 118px; height: 118px; top: 16%; left: -34px; font-size: 37px; }
+    .bubble-two { width: 70px; height: 70px; top: 65%; right: 7%; animation-delay: -6s; }
+    .bubble-three { width: 42px; height: 42px; top: 34%; right: 18%; font-size: 15px; animation-delay: -11s; }
+    .bubble-four { width: 150px; height: 150px; bottom: -68px; left: 37%; animation-delay: -3s; }
+    html[data-theme="dark"] .bubble { border-color: rgba(108, 211, 185, .11); color: rgba(108, 211, 185, .13); background: rgba(80, 178, 154, .035); }
+
+    .header {
+      position: relative;
+      z-index: 5;
+      width: min(1240px, 100%);
+      min-height: 78px;
+      margin: auto;
+      padding: 13px 34px;
+      display: grid;
+      grid-template-columns: auto minmax(230px, 450px) auto;
+      align-items: center;
+      gap: 30px;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 9px; color: var(--text); text-decoration: none; }
+    .brand-symbol { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 11px; color: #fff; background: linear-gradient(145deg, #32aaa0, #197480); box-shadow: 0 6px 15px rgba(25, 128, 124, .23); font-size: 17px; }
+    .brand-name { font-size: 20px; font-weight: 750; letter-spacing: -1px; }
+    .header-search { height: 41px; display: flex; align-items: center; gap: 10px; padding: 0 13px; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); background: var(--surface); box-shadow: 0 4px 18px rgba(39, 89, 91, .035); backdrop-filter: blur(16px); }
+    .header-search-icon { font-size: 20px; line-height: 1; }
+    .header-search input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--text); background: transparent; font-size: 12px; }
+    .header-search input::placeholder { color: var(--muted); }
+    .header-actions { display: flex; align-items: center; justify-content: end; gap: 10px; }
+    .icon-button, .filter-button, .language-select {
+      min-height: 37px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--text-soft);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color .2s, background .2s, transform .2s;
+    }
+    .icon-button:hover, .filter-button:hover, .language-select:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .filter-button { padding: 0 13px; display: inline-flex; align-items: center; gap: 8px; color: var(--text); font-size: 11px; font-weight: 650; }
+    .apply-button { min-height: 37px; padding: 0 13px; display: inline-flex; align-items: center; gap: 7px; border: 1px solid transparent; border-radius: 9px; color: #fff; background: linear-gradient(130deg, #1d968a, #1b7784); box-shadow: 0 5px 14px rgba(25, 127, 124, .19); font-size: 10px; font-weight: 750; white-space: nowrap; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+    .apply-button:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(25, 127, 124, .27); }
+    .apply-plus { font-size: 15px; line-height: 1; }
+    .filter-button[aria-expanded="true"] { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+    .filter-glyph { font-size: 16px; }
+    .language-select { padding: 0 7px; font-size: 10px; font-weight: 700; }
+    .icon-button { width: 38px; display: grid; place-items: center; font-size: 17px; }
+    .theme-icon { line-height: 1; }
+
+    .page { width: min(1120px, 100%); margin: 3px auto 0; padding: 0 34px; }
+    .hero {
+      min-height: 252px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding: 34px 43px;
+      border: 1px solid rgba(255, 255, 255, .82);
+      border-radius: 19px;
+      background: linear-gradient(110deg, rgba(255,255,255,.84), rgba(235,247,244,.68) 58%, rgba(211,237,233,.72));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+    html[data-theme="dark"] .hero { border-color: var(--line); background: linear-gradient(110deg, rgba(31,48,54,.94), rgba(27,58,59,.82)); }
+    .hero-copy { position: relative; z-index: 1; max-width: 530px; }
+    .overline { display: flex; align-items: center; gap: 8px; color: var(--accent-strong); font-size: 9px; font-weight: 750; letter-spacing: 1.3px; }
+    .pulse { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #43b89d; box-shadow: 0 0 0 4px rgba(67, 184, 157, .12); }
+    .hero h1 { margin: 17px 0 11px; font-size: clamp(34px, 4vw, 47px); line-height: 1.12; letter-spacing: -2.1px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { max-width: 405px; margin: 0; color: var(--text-soft); font-size: 12px; line-height: 1.75; }
+    .hero-art { width: 310px; height: 210px; position: absolute; top: 20px; right: 34px; }
+    .hero-ring { width: 190px; height: 190px; position: absolute; top: 8px; right: 46px; border: 1px solid rgba(54, 159, 145, .2); border-radius: 50%; }
+    .hero-ring::before { content: ""; position: absolute; inset: 19px; border: 1px dashed rgba(54, 159, 145, .22); border-radius: 50%; }
+    .hero-cross { width: 112px; height: 112px; position: absolute; top: 47px; right: 85px; display: grid; place-items: center; border: 1px solid #ffffffa6; border-radius: 34px; color: #fff; background: linear-gradient(145deg, #45b9a7, #247d8b); box-shadow: 0 16px 36px rgba(34, 125, 128, .3); font-size: 53px; transform: rotate(-8deg); animation: gentle-float 7s ease-in-out infinite; }
+    .hero-note { position: absolute; right: 0; bottom: 12px; padding: 10px 13px; display: flex; align-items: center; gap: 9px; border: 1px solid rgba(255, 255, 255, .9); border-radius: 10px; background: var(--surface-solid); box-shadow: var(--shadow); font-size: 9px; font-weight: 700; }
+    .hero-note-mark { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; color: var(--accent-strong); background: var(--accent-soft); font-size: 15px; }
+
+    .directory-heading { margin: 36px 2px 19px; display: flex; align-items: end; justify-content: space-between; gap: 15px; }
+    .directory-heading h2 { margin: 8px 0 4px; font-size: 25px; letter-spacing: -.9px; }
+    .directory-heading p { margin: 0; color: var(--muted); font-size: 11px; }
+    .doctor-count { padding: 8px 11px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: var(--surface); font-size: 9px; white-space: nowrap; }
+    .doctor-count strong { color: var(--accent-strong); }
+
+    .filter-panel {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      margin-bottom: 0;
+      padding: 0 17px;
+      border: 0 solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: none;
+      transition: grid-template-rows .28s ease, opacity .2s ease, padding .28s ease, margin .28s ease, border-width .28s ease, box-shadow .28s ease;
+    }
+    .filter-panel.is-open { grid-template-rows: 1fr; opacity: 1; margin-bottom: 16px; padding: 15px 17px 17px; border-width: 1px; box-shadow: var(--shadow); }
+    .filter-inner { min-height: 0; overflow: hidden; display: grid; grid-template-columns: 1.3fr 1fr 1fr auto; align-items: end; gap: 13px; }
+    .filter-field label { display: block; margin-bottom: 7px; color: var(--text-soft); font-size: 9px; font-weight: 700; }
+    .filter-field select { width: 100%; height: 37px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; outline: 0; color: var(--text); background: var(--surface-solid); font-size: 10px; }
+    .filter-clear { height: 37px; padding: 0 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--accent-strong); background: transparent; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .filter-clear:hover { background: var(--accent-soft); }
+    .results-toolbar { min-height: 30px; display: flex; align-items: start; justify-content: space-between; color: var(--muted); font-size: 9px; }
+    .live-label { display: inline-flex; align-items: center; gap: 7px; }
+    .live-label .pulse { width: 6px; height: 6px; }
+
+    .doctor-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+    .doctor-card { min-width: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.9); border-radius: 13px; background: var(--surface); box-shadow: 0 9px 27px rgba(39,89,91,.065); backdrop-filter: blur(14px); animation: card-appear .36s backwards; transition: transform .2s, box-shadow .2s, border-color .2s, background .25s; }
+    html[data-theme="dark"] .doctor-card { border-color: var(--line); }
+    .doctor-card:hover { transform: translateY(-4px); border-color: rgba(50, 158, 145, .34); box-shadow: var(--shadow); }
+    .doctor-cover { height: 91px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; background: linear-gradient(135deg, #d7efea, #dce9f0 57%, #e2f1e9); }
+    .doctor-cover::before, .doctor-cover::after { content: ""; position: absolute; border: 1px solid rgba(60, 151, 141, .15); border-radius: 50%; }
+    .doctor-cover::before { width: 130px; height: 130px; right: -30px; top: -78px; }
+    .doctor-cover::after { width: 95px; height: 95px; left: -24px; bottom: -66px; }
+    html[data-theme="dark"] .doctor-cover { background: linear-gradient(135deg, #254443, #293d4a 57%, #284139); }
+    .doctor-avatar { width: 58px; height: 58px; position: relative; z-index: 1; display: grid; place-items: center; border: 3px solid rgba(255,255,255,.88); border-radius: 20px; color: #187d79; background: linear-gradient(145deg, #fbffff, #e1f3ee); box-shadow: 0 7px 18px rgba(34, 104, 100, .17); font-size: 16px; font-weight: 750; letter-spacing: -.5px; }
+    .online-pill { position: absolute; z-index: 1; top: 9px; left: 9px; padding: 5px 7px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(255,255,255,.75); border-radius: 20px; color: #287d72; background: rgba(255,255,255,.87); font-size: 7px; font-weight: 700; }
+    .online-pill .pulse { width: 5px; height: 5px; box-shadow: none; }
+    .online-pill.unavailable { color: #817c78; }
+    .online-pill.unavailable .pulse { background: #a8aaa7; }
+    .doctor-info { padding: 13px 13px 12px; }
+    .doctor-specialty { display: block; min-height: 13px; margin-bottom: 5px; color: var(--accent-strong); font-size: 8px; font-weight: 750; letter-spacing: .25px; }
+    .doctor-name { min-height: 34px; margin: 0; color: var(--text); font-size: 12px; line-height: 1.4; letter-spacing: -.2px; }
+    .doctor-experience { margin: 6px 0 12px; color: var(--muted); font-size: 9px; }
+    .doctor-bottom { padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); }
+    .doctor-price { color: var(--text); font-size: 12px; font-weight: 750; white-space: nowrap; }
+    .doctor-price small { display: block; margin-top: 2px; color: var(--muted); font-size: 7px; font-weight: 400; }
+    .book-button { min-height: 31px; padding: 0 10px; border: 0; border-radius: 7px; color: #fff; background: linear-gradient(130deg, #1d968a, #1b7784); font-size: 8px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: transform .18s, box-shadow .18s; }
+    .book-button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 13px rgba(25, 127, 124, .26); }
+    .book-button:disabled { color: var(--muted); background: var(--surface-soft); cursor: not-allowed; }
+    .empty-state, .loading-state { padding: 45px 15px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; font-size: 11px; }
+    .empty-state strong { display: block; margin-bottom: 5px; color: var(--text-soft); font-size: 13px; }
+    .directory-message { min-height: 17px; margin: 8px 0 0; color: #b04d48; font-size: 10px; }
+    .footer { min-height: 66px; margin-top: 25px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; }
+    .footer .brand-symbol { width: 25px; height: 25px; border-radius: 8px; font-size: 13px; }
+    .footer .brand-name { font-size: 15px; }
+
+    .dialog { width: min(440px, calc(100% - 28px)); max-height: min(90vh, 700px); padding: 0; overflow: auto; border: 1px solid var(--line); border-radius: 16px; color: var(--text); background: var(--surface-solid); box-shadow: 0 28px 90px rgba(15, 56, 58, .32); }
+    .dialog::backdrop { background: var(--backdrop); backdrop-filter: blur(6px); }
+    .booking-form { position: relative; padding: 26px 28px 21px; }
+    .dialog-close { width: 29px; height: 29px; position: absolute; top: 16px; right: 16px; border: 1px solid var(--line); border-radius: 8px; color: var(--text-soft); background: var(--surface); font-size: 20px; cursor: pointer; }
+    .dialog-kicker { display: flex; align-items: center; gap: 8px; color: var(--accent-strong); font-size: 8px; font-weight: 750; letter-spacing: 1px; }
+    .booking-form h2 { margin: 11px 0 5px; font-size: 24px; letter-spacing: -.6px; }
+    .dialog-description { margin: 0 0 16px; color: var(--muted); font-size: 10px; line-height: 1.65; }
+    .selected-doctor { margin-bottom: 15px; padding: 10px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
+    .selected-avatar { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; color: var(--accent-strong); background: var(--surface-solid); font-size: 12px; font-weight: 750; }
+    .selected-doctor strong, .selected-doctor small { display: block; }
+    .selected-doctor strong { margin-bottom: 4px; font-size: 10px; }
+    .selected-doctor small { color: var(--muted); font-size: 8px; }
+    .booking-form label { display: block; margin: 12px 0 6px; color: var(--text-soft); font-size: 9px; font-weight: 700; }
+    .booking-form input, .booking-form select { width: 100%; height: 39px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; outline: 0; color: var(--text); background: var(--surface-solid); font-size: 10px; }
+    .booking-form input::placeholder { color: var(--muted); }
+    .booking-form input:focus, .booking-form select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(71, 177, 158, .13); }
+    .book-submit { width: 100%; height: 41px; margin-top: 16px; padding: 0 13px; display: flex; align-items: center; justify-content: space-between; border: 0; border-radius: 7px; color: #fff; background: linear-gradient(120deg, #1d968a, #1b7784); font-size: 10px; font-weight: 700; cursor: pointer; }
+    .book-submit:disabled { opacity: .65; cursor: wait; }
+    .dialog-message { min-height: 16px; margin: 8px 0 0; color: #178264; font-size: 9px; }
+    .dialog-message.error { color: #b3443c; }
+    .privacy-note { margin: 3px 0 0; color: var(--muted); font-size: 8px; text-align: center; }
+    .toast { position: fixed; z-index: 20; right: 22px; bottom: 22px; max-width: min(390px, calc(100vw - 32px)); padding: 14px 17px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); background: var(--surface-solid); box-shadow: 0 14px 40px rgba(12, 53, 57, .2); font-size: 12px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .22s, transform .22s; }
+    .toast.is-visible { opacity: 1; transform: translateY(0); }
+    .toast-icon { width: 25px; height: 25px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 8px; color: var(--accent-strong); background: var(--accent-soft); font-weight: 800; }
+    [hidden] { display: none !important; }
+
+    @keyframes gradient-flow { 0%, 100% { background-position: 0 45%; } 50% { background-position: 100% 55%; } }
+    @keyframes drift { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0); } 50% { transform: translate3d(13px, -20px, 0) rotate(8deg); } }
+    @keyframes gentle-float { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-7px) rotate(-5deg); } }
+    @keyframes card-appear { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 850px) {
+      .header { grid-template-columns: auto minmax(190px, 1fr) auto; gap: 15px; padding-inline: 23px; }
+      .page { padding-inline: 23px; }
+      .hero { padding-left: 32px; }
+      .hero-art { right: 7px; transform: scale(.83); transform-origin: center right; }
+      .doctor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 600px) {
+      .header { min-height: 150px; padding: 12px 17px; grid-template-columns: 1fr; gap: 9px; }
+      .brand { grid-column: 1; grid-row: 1; }
+      .header-actions { grid-column: 1; grid-row: 2; justify-content: space-between; gap: 7px; }
+      .header-search { grid-column: 1; grid-row: 3; height: 39px; }
+      .filter-button { min-height: 35px; padding: 0 9px; font-size: 9px; }
+      .filter-button .filter-label { display: inline; }
+      .apply-button { min-height: 35px; padding: 0 9px; font-size: 9px; }
+      .language-select { min-height: 35px; }
+      .icon-button { width: 35px; min-height: 35px; }
+      .page { padding-inline: 14px; }
+      .hero { min-height: 224px; padding: 26px 23px; border-radius: 15px; }
+      .hero h1 { font-size: 35px; }
+      .hero p { max-width: 270px; font-size: 10px; }
+      .hero-art { width: 180px; height: 120px; right: -17px; top: auto; bottom: -1px; opacity: .45; transform: scale(.67); transform-origin: bottom right; }
+      .hero-note { display: none; }
+      .directory-heading { margin-top: 29px; align-items: start; }
+      .directory-heading h2 { font-size: 21px; }
+      .directory-heading p { max-width: 210px; font-size: 9px; }
+      .doctor-count { padding: 7px 8px; font-size: 8px; }
+      .filter-panel.is-open { padding: 13px; }
+      .filter-inner { grid-template-columns: 1fr 1fr; gap: 11px; }
+      .filter-field:first-child { grid-column: 1 / -1; }
+      .filter-clear { min-height: 37px; }
+      .doctor-grid { gap: 10px; }
+      .doctor-cover { height: 78px; }
+      .doctor-avatar { width: 49px; height: 49px; border-radius: 17px; font-size: 14px; }
+      .doctor-info { padding: 10px; }
+      .doctor-name { min-height: 32px; font-size: 10px; }
+      .doctor-experience { font-size: 8px; }
+      .doctor-price { font-size: 10px; }
+      .book-button { padding-inline: 8px; font-size: 8px; }
+      .footer { min-height: 57px; font-size: 8px; }
+      .footer > span:nth-child(2) { display: none; }
+    }
+    @media (max-width: 370px) {
+      .header-actions { gap: 4px; }
+      .filter-button { gap: 5px; }
+      .apply-button { padding-inline: 7px; font-size: 8px; }
+      .page { padding-inline: 11px; }
+      .doctor-grid { grid-template-columns: 1fr; }
+      .doctor-cover { height: 100px; }
+      .doctor-name { min-height: 0; font-size: 12px; }
+      .doctor-info { padding: 12px; }
+      .filter-inner { grid-template-columns: 1fr; }
+      .filter-field:first-child { grid-column: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="float-field" aria-hidden="true">
+    <span class="bubble bubble-one">✚</span>
+    <span class="bubble bubble-two"></span>
+    <span class="bubble bubble-three">✳</span>
+    <span class="bubble bubble-four"></span>
+  </div>
+
+  <header class="header">
+    <a class="brand" href="#" aria-label="Medora home">
+      <span class="brand-symbol" aria-hidden="true">✚</span>
+      <span class="brand-name">medora</span>
+    </a>
+    <label class="header-search">
+      <span class="header-search-icon" aria-hidden="true">⌕</span>
+      <input id="doctor-search" type="search" autocomplete="off" data-i18n-placeholder="searchPlaceholder" placeholder="Search doctors or specialties" aria-label="Search doctors">
+    </label>
+    <div class="header-actions">
+      <button class="filter-button" id="filter-toggle" type="button" aria-expanded="false" aria-controls="filter-panel">
+        <span class="filter-glyph" aria-hidden="true">☷</span><span class="filter-label" data-i18n="filterButton">Filter</span>
+      </button>
+      <select class="language-select" id="language-select" data-i18n-aria="languageLabel" aria-label="Choose language">
+        <option value="uz" selected>UZ</option><option value="ru">RU</option><option value="en">EN</option>
+      </select>
+      <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode">
+        <span class="theme-icon" id="theme-icon" aria-hidden="true">☾</span>
+      </button>
+      <button class="apply-button" id="apply-button" type="button"><span class="apply-plus" aria-hidden="true">+</span><span data-i18n="applicationButton">Ariza berish</span></button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="overline"><span class="pulse"></span><span data-i18n="eyebrow">CARE THAT COMES TO YOU</span></div>
+        <h1 data-i18n="heroTitle">The right care.<br><span>The right here.</span></h1>
+        <p data-i18n="heroDescription">Meet trusted specialists and make time for your health — all in one simple place.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="hero-ring"></div><div class="hero-cross">✚</div>
+        <div class="hero-note"><span class="hero-note-mark">✓</span><span data-i18n="heroNote">Care made simple</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="directory-title">
+      <div class="directory-heading">
+        <div>
+          <div class="overline"><span class="pulse"></span><span data-i18n="directoryEyebrow">YOUR CARE TEAM</span></div>
+          <h2 id="directory-title" data-i18n="directoryTitle">Find your specialist</h2>
+          <p data-i18n="directoryDescription">Experienced doctors, ready when you are.</p>
+        </div>
+        <div class="doctor-count"><strong id="doctor-count">—</strong> <span data-i18n="doctorsFound">doctors found</span></div>
+      </div>
+
+      <div class="filter-panel" id="filter-panel" aria-hidden="true">
+        <div class="filter-inner">
+          <div class="filter-field">
+            <label for="name-filter" data-i18n="nameFilter">Name</label>
+            <select id="name-filter"><option value="all" data-i18n="allDoctors">All doctors</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="specialty-filter" data-i18n="specialtyFilter">Specialty</label>
+            <select id="specialty-filter"><option value="all" data-i18n="allSpecialties">All specialties</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="experience-filter" data-i18n="experienceFilter">Experience</label>
+            <select id="experience-filter">
+              <option value="all" data-i18n="anyExperience">Any experience</option>
+              <option value="junior" data-i18n="experienceJunior">Under 5 years</option>
+              <option value="mid" data-i18n="experienceMid">5–10 years</option>
+              <option value="senior" data-i18n="experienceSenior">Over 10 years</option>
+            </select>
+          </div>
+          <button class="filter-clear" id="clear-filters" type="button" data-i18n="clearFilters">Clear filters</button>
+        </div>
+      </div>
+
+      <div class="results-toolbar">
+        <span id="results-label" data-i18n="allSpecialists">Our specialists</span>
+        <span class="live-label"><span class="pulse"></span><span data-i18n="liveAvailability">Live availability</span></span>
+      </div>
+      <div class="doctor-grid" id="doctor-grid" aria-live="polite">
+        <div class="loading-state" data-i18n="loading">Finding your care team...</div>
+      </div>
+      <p class="directory-message" id="directory-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <footer class="footer">
+      <a class="brand" href="#" aria-label="Medora home"><span class="brand-symbol" aria-hidden="true">✚</span><span class="brand-name">medora</span></a>
+      <span data-i18n="footerText">Care that puts people first.</span>
+      <span>© 2026 Medora</span>
+    </footer>
+  </main>
+
+  <dialog class="dialog" id="booking-dialog" aria-labelledby="dialog-title">
+    <form class="booking-form" id="booking-form">
+      <button class="dialog-close" id="dialog-close" type="button" data-i18n-aria="closeDialog" aria-label="Close">×</button>
+      <div class="dialog-kicker"><span class="pulse"></span><span data-i18n="dialogKicker">YOUR APPOINTMENT</span></div>
+      <h2 id="dialog-title" data-i18n="dialogTitle">Book a visit</h2>
+      <p class="dialog-description" data-i18n="dialogDescription">Choose a time and leave your contact details. We’ll take it from there.</p>
+      <div class="selected-doctor" id="selected-doctor"></div>
+      <label for="booking-doctor" data-i18n="selectedDoctorLabel">Selected doctor</label>
+      <select id="booking-doctor" name="doctor_id" required></select>
+      <label for="appointment-slot" data-i18n="slotLabel">Available date &amp; time</label>
+      <select id="appointment-slot" name="schedule_id" required></select>
+      <label for="full-name" data-i18n="patientName">Your full name</label>
+      <input id="full-name" name="full_name" type="text" autocomplete="name" minlength="2" maxlength="120" required data-i18n-placeholder="namePlaceholder" placeholder="e.g. Alex Morgan">
+      <label for="phone" data-i18n="phoneLabel">Phone number</label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel" minlength="7" maxlength="32" required placeholder="+998 90 123 45 67">
+      <button class="book-submit" id="book-submit" type="submit"><span data-i18n="confirmBooking">Confirm appointment</span><span aria-hidden="true">→</span></button>
+      <p class="dialog-message" id="dialog-message" role="status" aria-live="polite"></p>
+      <p class="privacy-note" data-i18n="localOnly">Standalone demo: this form does not send your personal details to a server.</p>
+    </form>
+  </dialog>
+  <div class="toast" id="success-toast" role="status" aria-live="polite"><span class="toast-icon" aria-hidden="true">✓</span><span id="toast-message"></span></div>
+
+  <script>
+    (() => {
+      const translations = {
+        en: {
+          applicationButton: 'Submit application', cardBook: 'Book appointment',
+          selectedDoctorLabel: 'Selected doctor', chooseDoctor: 'Choose a doctor',
+          fallbackResults: 'No exact match — showing recommended doctors.',
+          successToast: 'Demo application recorded in this browser. No data was sent.',
+          localOnly: 'Standalone demo: this form does not send your personal details to a server.',
+          invalidPhone: 'Enter a valid phone number.',
+          languageLabel: 'Choose language', searchPlaceholder: 'Search doctors or specialties', searchLabel: 'Search doctors',
+          filterButton: 'Filter', eyebrow: 'CARE THAT COMES TO YOU',
+          heroTitle: 'The right care.<br><span>The right here.</span>',
+          heroDescription: 'Meet trusted specialists and make time for your health — all in one simple place.',
+          heroNote: 'Care made simple', directoryEyebrow: 'YOUR CARE TEAM',
+          directoryTitle: 'Find your specialist', directoryDescription: 'Experienced doctors, ready when you are.',
+          doctorsFound: 'doctors found', nameFilter: 'Doctor', allDoctors: 'All doctors',
+          specialtyFilter: 'Specialty', allSpecialties: 'All specialties',
+          experienceFilter: 'Experience', anyExperience: 'Any experience',
+          experienceJunior: 'Under 5 years', experienceMid: '5–10 years', experienceSenior: 'Over 10 years',
+          clearFilters: 'Clear filters', allSpecialists: 'Our specialists', liveAvailability: 'Live availability',
+          loading: 'Finding your care team...', footerText: 'Care that puts people first.',
+          closeDialog: 'Close', dialogKicker: 'YOUR APPOINTMENT', dialogTitle: 'Book a visit',
+          dialogDescription: 'Choose a time and leave your contact details. We’ll take it from there.',
+          slotLabel: 'Available date & time', patientName: 'Your full name', namePlaceholder: 'e.g. Alex Morgan',
+          phoneLabel: 'Phone number', confirmBooking: 'Confirm appointment',
+          privacyNote: 'Your contact details are only used for this appointment.',
+          yearsExperience: 'years experience', perVisit: 'per visit', book: 'Book',
+          available: 'Available', noSlots: 'No times available', selectTime: 'Select a date and time',
+          appointmentConfirmed: 'Your appointment is confirmed.',
+          slotTaken: 'That time was just booked. Please choose another.',
+          invalidBooking: 'Check your details and select an available time.',
+          bookingError: 'Could not book the appointment. Please try again.',
+          directoryError: 'Could not load doctors. Please try again.',
+          filterAria: 'Open doctor filters', themeDark: 'Switch to dark mode', themeLight: 'Switch to light mode',
+          specialties: { Cardiology: 'Cardiology', Cardiologist: 'Cardiology', Neurology: 'Neurology', Neurologist: 'Neurology', Dentist: 'Dentist', Dentistry: 'Dentistry', Dermatology: 'Dermatology', Pediatrics: 'Pediatrics', 'Family medicine': 'Family medicine', Ophthalmology: 'Ophthalmology' }
+        },
+        ru: {
+          applicationButton: 'Подать заявку', cardBook: 'Записаться на приём',
+          selectedDoctorLabel: 'Выбранный врач', chooseDoctor: 'Выберите врача',
+          fallbackResults: 'Совпадений нет — рекомендуем этих специалистов.',
+          successToast: 'Демо-заявка сохранена в браузере. Данные никуда не отправлялись.',
+          localOnly: 'Автономная демо-версия: данные формы не отправляются на сервер.',
+          invalidPhone: 'Введите корректный номер телефона.',
+          languageLabel: 'Выбрать язык', searchPlaceholder: 'Поиск врачей или специальностей', searchLabel: 'Поиск врачей',
+          filterButton: 'Фильтр', eyebrow: 'ЗАБОТА РЯДОМ С ВАМИ',
+          heroTitle: 'Нужная помощь.<br><span>Именно здесь.</span>',
+          heroDescription: 'Найдите проверенного специалиста и уделите время здоровью — всё в одном месте.',
+          heroNote: 'Забота — это просто', directoryEyebrow: 'КОМАНДА ВРАЧЕЙ',
+          directoryTitle: 'Найдите своего специалиста', directoryDescription: 'Опытные врачи готовы вам помочь.',
+          doctorsFound: 'врачей найдено', nameFilter: 'Врач', allDoctors: 'Все врачи',
+          specialtyFilter: 'Специальность', allSpecialties: 'Все специальности',
+          experienceFilter: 'Стаж', anyExperience: 'Любой стаж',
+          experienceJunior: 'До 5 лет', experienceMid: '5–10 лет', experienceSenior: 'Более 10 лет',
+          clearFilters: 'Сбросить фильтры', allSpecialists: 'Наши специалисты', liveAvailability: 'Актуальное расписание',
+          loading: 'Подбираем врачей...', footerText: 'Забота о людях — прежде всего.',
+          closeDialog: 'Закрыть', dialogKicker: 'ВАША ЗАПИСЬ', dialogTitle: 'Записаться на приём',
+          dialogDescription: 'Выберите время и оставьте контактные данные. Об остальном позаботимся мы.',
+          slotLabel: 'Дата и время', patientName: 'Ваше имя и фамилия', namePlaceholder: 'Например, Анна Иванова',
+          phoneLabel: 'Номер телефона', confirmBooking: 'Подтвердить запись',
+          privacyNote: 'Контактные данные нужны только для этой записи.',
+          yearsExperience: 'лет стажа', perVisit: 'за приём', book: 'Записаться',
+          available: 'Есть время', noSlots: 'Нет свободного времени', selectTime: 'Выберите дату и время',
+          appointmentConfirmed: 'Вы записаны на приём.',
+          slotTaken: 'Это время только что заняли. Выберите другое.',
+          invalidBooking: 'Проверьте данные и выберите свободное время.',
+          bookingError: 'Не удалось оформить запись. Попробуйте ещё раз.',
+          directoryError: 'Не удалось загрузить врачей. Попробуйте ещё раз.',
+          filterAria: 'Открыть фильтры врачей', themeDark: 'Включить тёмную тему', themeLight: 'Включить светлую тему',
+          specialties: { Cardiology: 'Кардиология', Cardiologist: 'Кардиология', Neurology: 'Неврология', Neurologist: 'Неврология', Dentist: 'Стоматолог', Dentistry: 'Стоматология', Dermatology: 'Дерматология', Pediatrics: 'Педиатрия', 'Family medicine': 'Семейная медицина', Ophthalmology: 'Офтальмология' }
+        },
+        uz: {
+          applicationButton: 'Ariza berish', cardBook: 'Qabulga yozilish',
+          selectedDoctorLabel: 'Tanlangan shifokor', chooseDoctor: 'Shifokorni tanlang',
+          fallbackResults: 'Mos natija topilmadi — tavsiya etilgan shifokorlar ko‘rsatilmoqda.',
+          successToast: 'Demo ariza brauzerda saqlandi. Ma’lumotlar serverga yuborilmadi.',
+          localOnly: 'Mustaqil demo: shaxsiy ma’lumotlar serverga yuborilmaydi.',
+          invalidPhone: 'Telefon raqamini to‘g‘ri kiriting.',
+          languageLabel: 'Tilni tanlang', searchPlaceholder: 'Shifokor yoki mutaxassislikni qidiring', searchLabel: 'Shifokorlarni qidirish',
+          filterButton: 'Filtr', eyebrow: 'SIZGA YAQIN TIBBIY YORDAM',
+          heroTitle: 'Kerakli yordam.<br><span>Shu yerda.</span>',
+          heroDescription: 'Ishonchli mutaxassisni toping va sog‘lig‘ingizga vaqt ajrating — barchasi bir joyda.',
+          heroNote: 'Tibbiy yordam oson', directoryEyebrow: 'SHIFOKORLAR JAMOASI',
+          directoryTitle: 'Mutaxassisni toping', directoryDescription: 'Tajribali shifokorlar sizni kutmoqda.',
+          doctorsFound: 'nafar shifokor topildi', nameFilter: 'Shifokor', allDoctors: 'Barcha shifokorlar',
+          specialtyFilter: 'Mutaxassislik', allSpecialties: 'Barcha mutaxassisliklar',
+          experienceFilter: 'Tajriba', anyExperience: 'Istalgan tajriba',
+          experienceJunior: '5 yildan kam', experienceMid: '5–10 yil', experienceSenior: '10 yildan ortiq',
+          clearFilters: 'Filtrlarni tozalash', allSpecialists: 'Mutaxassislarimiz', liveAvailability: 'Joriy bo‘sh vaqtlar',
+          loading: 'Shifokorlar topilmoqda...', footerText: 'Avvalo inson salomatligi.',
+          closeDialog: 'Yopish', dialogKicker: 'QABULGA YOZILISH', dialogTitle: 'Qabulga yoziling',
+          dialogDescription: 'Vaqtni tanlang va aloqa ma’lumotlaringizni qoldiring. Qolganini biz hal qilamiz.',
+          slotLabel: 'Sana va vaqt', patientName: 'Ism-familiyangiz', namePlaceholder: 'Masalan, Ali Valiyev',
+          phoneLabel: 'Telefon raqami', confirmBooking: 'Qabulni tasdiqlash',
+          privacyNote: 'Aloqa ma’lumotlari faqat ushbu qabul uchun ishlatiladi.',
+          yearsExperience: 'yil tajriba', perVisit: 'har bir qabul', book: 'Yozilish',
+          available: 'Bo‘sh vaqt bor', noSlots: 'Bo‘sh vaqt yo‘q', selectTime: 'Sana va vaqtni tanlang',
+          appointmentConfirmed: 'Qabulga muvaffaqiyatli yozildingiz.',
+          slotTaken: 'Bu vaqt hozirgina band qilindi. Boshqasini tanlang.',
+          invalidBooking: 'Ma’lumotlarni tekshiring va bo‘sh vaqtni tanlang.',
+          bookingError: 'Qabulga yozib bo‘lmadi. Qayta urinib ko‘ring.',
+          directoryError: 'Shifokorlarni yuklab bo‘lmadi. Qayta urinib ko‘ring.',
+          filterAria: 'Shifokor filtrlarini ochish', themeDark: 'Qorong‘i rejimni yoqish', themeLight: 'Yorug‘ rejimni yoqish',
+          specialties: { Cardiology: 'Kardiologiya', Cardiologist: 'Kardiologiya', Neurology: 'Nevrologiya', Neurologist: 'Nevrologiya', Dentist: 'Stomatolog', Dentistry: 'Stomatologiya', Dermatology: 'Dermatologiya', Pediatrics: 'Pediatriya', 'Family medicine': 'Oilaviy tibbiyot', Ophthalmology: 'Oftalmologiya' }
+        }
+      };
+
+      const demoDoctors = [
+        { id: 'demo-1', full_name: 'Dr. Maya Chen', specialty: 'Cardiology', experience_years: 12, price_per_visit: 120, avatar: 'MC', available_slots: demoSlots(1) },
+        { id: 'demo-2', full_name: 'Dr. James Wilson', specialty: 'Neurology', experience_years: 9, price_per_visit: 95, avatar: 'JW', available_slots: demoSlots(2) },
+        { id: 'demo-3', full_name: 'Dr. Sofia Karimova', specialty: 'Dentist', experience_years: 7, price_per_visit: 65, avatar: 'SK', available_slots: demoSlots(3) },
+        { id: 'demo-4', full_name: 'Dr. Amir Rahman', specialty: 'Dermatology', experience_years: 15, price_per_visit: 110, avatar: 'AR', available_slots: demoSlots(4) },
+        { id: 'demo-5', full_name: 'Dr. Elena Petrova', specialty: 'Pediatrics', experience_years: 4, price_per_visit: 75, avatar: 'EP', available_slots: demoSlots(5) },
+        { id: 'demo-6', full_name: 'Dr. Daniel Brooks', specialty: 'Family medicine', experience_years: 19, price_per_visit: 90, avatar: 'DB', available_slots: demoSlots(6) }
+      ];
+
+      function demoSlots(seed) {
+        const today = new Date();
+        const slots = [];
+        for (let offset = 1; offset <= 5; offset += 1) {
+          const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset);
+          const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          slots.push({ id: `demo-${seed}-${offset}-09`, date: dateString, time: '09:00' });
+          slots.push({ id: `demo-${seed}-${offset}-13`, date: dateString, time: '13:30' });
+        }
+        return slots;
+      }
+
+      const $ = (selector) => document.querySelector(selector);
+      const languageSelect = $('#language-select');
+      const searchInput = $('#doctor-search');
+      const specialtyFilter = $('#specialty-filter');
+      const nameFilter = $('#name-filter');
+      const experienceFilter = $('#experience-filter');
+      const grid = $('#doctor-grid');
+      const count = $('#doctor-count');
+      const message = $('#directory-message');
+      const filterPanel = $('#filter-panel');
+      const filterToggle = $('#filter-toggle');
+      const themeToggle = $('#theme-toggle');
+      const bookingDialog = $('#booking-dialog');
+      const bookingForm = $('#booking-form');
+      const bookingDoctorSelect = $('#booking-doctor');
+      const slotSelect = $('#appointment-slot');
+      const bookingDoctor = $('#selected-doctor');
+      const dialogMessage = $('#dialog-message');
+      const submitButton = $('#book-submit');
+      const successToast = $('#success-toast');
+      const toastMessage = $('#toast-message');
+      const locale = { en: 'en-US', ru: 'ru-RU', uz: 'uz-UZ' };
+      const readPreference = (key, allowed, fallback) => {
+        try {
+          const value = localStorage.getItem(key);
+          return allowed.includes(value) ? value : fallback;
+        } catch {
+          return fallback;
+        }
+      };
+      let language = readPreference('medora-language', ['uz', 'ru', 'en'], 'uz');
+      let theme = readPreference('medora-theme', ['light', 'dark'], 'light');
+      let doctors = [];
+      let selectedDoctorId = null;
+      let toastTimer;
+      const applications = [];
+
+      function t(key) { return translations[language][key] || translations.en[key] || key; }
+      function safeText(value) { return typeof value === 'string' ? value : ''; }
+      function formatSpecialty(value) {
+        const specialty = safeText(value);
+        return translations[language].specialties[specialty] || specialty || t('specialtyFilter');
+      }
+      function initials(name) {
+        return safeText(name).trim().split(/\s+/).slice(0, 2).map((part) => part[0] || '').join('').toUpperCase();
+      }
+      function formatMoney(value) {
+        return new Intl.NumberFormat(locale[language], { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(value) || 0);
+      }
+      function formatSlot(slot) {
+        const date = new Date(`${slot.date}T00:00:00`);
+        const dateLabel = new Intl.DateTimeFormat(locale[language], { month: 'short', day: 'numeric' }).format(date);
+        const timeLabel = new Intl.DateTimeFormat(locale[language], { hour: 'numeric', minute: '2-digit' }).format(new Date(`2000-01-01T${slot.time}:00`));
+        return `${dateLabel} · ${timeLabel}`;
+      }
+
+      function applyLanguage() {
+        document.documentElement.lang = language;
+        document.title = language === 'ru' ? 'Medora — Найти врача' : language === 'uz' ? 'Medora — Shifokor topish' : 'Medora — Find your doctor';
+        document.querySelectorAll('[data-i18n]').forEach((element) => {
+          const value = t(element.dataset.i18n);
+          if (element.dataset.i18n === 'heroTitle') element.innerHTML = value;
+          else element.textContent = value;
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+          element.placeholder = t(element.dataset.i18nPlaceholder);
+        });
+        document.querySelectorAll('[data-i18n-aria]').forEach((element) => {
+          element.setAttribute('aria-label', t(element.dataset.i18nAria));
+        });
+        searchInput.setAttribute('aria-label', t('searchLabel'));
+        filterToggle.setAttribute('aria-label', t('filterAria'));
+        updateThemeButton();
+        renderFilters();
+        renderDoctors();
+        const doctor = doctors.find((item) => String(item.id) === selectedDoctorId);
+        if (bookingDialog.open) {
+          bookingDoctorSelect.value = doctor ? String(doctor.id) : '';
+          if (doctor) {
+            renderSelectedDoctor(doctor);
+            renderSlots(doctor);
+          }
+        }
+      }
+
+      function renderFilters() {
+        const oldSpecialty = specialtyFilter.value || 'all';
+        const oldName = nameFilter.value || 'all';
+        const oldBookingDoctor = bookingDoctorSelect.value || '';
+        specialtyFilter.replaceChildren(new Option(t('allSpecialties'), 'all'));
+        [...new Set(doctors.map((doctor) => doctor.specialty).filter(Boolean))].sort().forEach((specialty) => {
+          specialtyFilter.add(new Option(formatSpecialty(specialty), specialty));
+        });
+        nameFilter.replaceChildren(new Option(t('allDoctors'), 'all'));
+        bookingDoctorSelect.replaceChildren(new Option(t('chooseDoctor'), ''));
+        doctors.forEach((doctor) => {
+          nameFilter.add(new Option(doctor.full_name, String(doctor.id)));
+          bookingDoctorSelect.add(new Option(doctor.full_name, String(doctor.id)));
+        });
+        specialtyFilter.value = [...specialtyFilter.options].some((option) => option.value === oldSpecialty) ? oldSpecialty : 'all';
+        nameFilter.value = [...nameFilter.options].some((option) => option.value === oldName) ? oldName : 'all';
+        bookingDoctorSelect.value = [...bookingDoctorSelect.options].some((option) => option.value === oldBookingDoctor) ? oldBookingDoctor : '';
+      }
+
+      function createDoctorCard(doctor, index) {
+        const card = document.createElement('article');
+        card.className = 'doctor-card';
+        card.style.animationDelay = `${Math.min(index * 45, 270)}ms`;
+        const cover = document.createElement('div');
+        cover.className = 'doctor-cover';
+        const avatar = document.createElement('span');
+        avatar.className = 'doctor-avatar';
+        avatar.textContent = safeText(doctor.avatar) || initials(doctor.full_name);
+        cover.append(avatar);
+        const pill = document.createElement('span');
+        const hasSlots = Array.isArray(doctor.available_slots) && doctor.available_slots.length > 0;
+        pill.className = `online-pill${hasSlots ? '' : ' unavailable'}`;
+        const pulse = document.createElement('span');
+        pulse.className = 'pulse';
+        pill.append(pulse, document.createTextNode(t(hasSlots ? 'available' : 'noSlots')));
+        cover.append(pill);
+
+        const info = document.createElement('div');
+        info.className = 'doctor-info';
+        const specialty = document.createElement('span');
+        specialty.className = 'doctor-specialty';
+        specialty.textContent = formatSpecialty(doctor.specialty);
+        const name = document.createElement('h3');
+        name.className = 'doctor-name';
+        name.textContent = safeText(doctor.full_name);
+        const experience = document.createElement('p');
+        experience.className = 'doctor-experience';
+        experience.textContent = `${Number(doctor.experience_years) || 0} ${t('yearsExperience')}`;
+        const bottom = document.createElement('div');
+        bottom.className = 'doctor-bottom';
+        const price = document.createElement('strong');
+        price.className = 'doctor-price';
+        price.textContent = formatMoney(doctor.price_per_visit);
+        const priceNote = document.createElement('small');
+        priceNote.textContent = t('perVisit');
+        price.append(priceNote);
+        const book = document.createElement('button');
+        book.className = 'book-button';
+        book.type = 'button';
+        book.textContent = t('cardBook');
+        book.disabled = !hasSlots;
+        book.addEventListener('click', () => openBooking(doctor));
+        bottom.append(price, book);
+        info.append(specialty, name, experience, bottom);
+        card.append(cover, info);
+        return card;
+      }
+
+      function renderDoctors() {
+        const query = searchInput.value.trim().toLocaleLowerCase(locale[language]);
+        const specialty = specialtyFilter.value;
+        const doctorId = nameFilter.value;
+        const experience = experienceFilter.value;
+        const matches = doctors.filter((doctor) => {
+          const searchable = `${doctor.full_name || ''} ${doctor.specialty || ''} ${formatSpecialty(doctor.specialty)}`.toLocaleLowerCase(locale[language]);
+          const years = Number(doctor.experience_years) || 0;
+          const matchExperience = experience === 'all' || (experience === 'junior' && years < 5) ||
+            (experience === 'mid' && years >= 5 && years <= 10) || (experience === 'senior' && years > 10);
+          return (!query || searchable.includes(query)) &&
+            (specialty === 'all' || doctor.specialty === specialty) &&
+            (doctorId === 'all' || String(doctor.id) === doctorId) &&
+            matchExperience;
+        });
+        const visible = matches.length ? matches : doctors;
+        count.textContent = String(visible.length);
+        grid.replaceChildren(...visible.map(createDoctorCard));
+        message.textContent = matches.length || !doctors.length ? '' : t('fallbackResults');
+      }
+
+      function renderSelectedDoctor(doctor) {
+        bookingDoctor.replaceChildren();
+        const avatar = document.createElement('span');
+        avatar.className = 'selected-avatar';
+        avatar.textContent = safeText(doctor.avatar) || initials(doctor.full_name);
+        const details = document.createElement('span');
+        const name = document.createElement('strong');
+        name.textContent = safeText(doctor.full_name);
+        const specialty = document.createElement('small');
+        specialty.textContent = `${formatSpecialty(doctor.specialty)} · ${formatMoney(doctor.price_per_visit)} ${t('perVisit')}`;
+        details.append(name, specialty);
+        bookingDoctor.append(avatar, details);
+      }
+
+      function renderSlots(doctor) {
+        slotSelect.replaceChildren();
+        if (!doctor || !doctor.id) {
+          slotSelect.add(new Option(t('chooseDoctor'), ''));
+          slotSelect.disabled = true;
+          return;
+        }
+        const slots = Array.isArray(doctor.available_slots) ? doctor.available_slots : [];
+        if (slots.length === 0) {
+          slotSelect.add(new Option(t('noSlots'), ''));
+          slotSelect.disabled = true;
+          return;
+        }
+        slotSelect.add(new Option(t('selectTime'), ''));
+        slots.forEach((slot) => slotSelect.add(new Option(formatSlot(slot), slot.id)));
+        slotSelect.disabled = false;
+      }
+
+      function openBooking(doctor = null) {
+        selectedDoctorId = doctor ? String(doctor.id) : null;
+        bookingForm.reset();
+        bookingDoctorSelect.value = selectedDoctorId || '';
+        dialogMessage.textContent = '';
+        dialogMessage.className = 'dialog-message';
+        submitButton.disabled = false;
+        if (doctor) {
+          bookingDoctorSelect.value = selectedDoctorId;
+          renderSelectedDoctor(doctor);
+          renderSlots(doctor);
+        } else {
+          bookingDoctorSelect.value = '';
+          bookingDoctor.replaceChildren();
+          renderSlots(null);
+        }
+        bookingDialog.showModal();
+        $('#full-name').focus();
+      }
+
+      function showSuccessToast(text) {
+        window.clearTimeout(toastTimer);
+        toastMessage.textContent = text;
+        successToast.classList.add('is-visible');
+        toastTimer = window.setTimeout(() => successToast.classList.remove('is-visible'), 5200);
+      }
+
+      function updateThemeButton() {
+        document.documentElement.dataset.theme = theme;
+        const isDark = theme === 'dark';
+        $('#theme-icon').textContent = isDark ? '☀' : '☾';
+        const label = t(isDark ? 'themeLight' : 'themeDark');
+        themeToggle.setAttribute('aria-label', label);
+        themeToggle.title = label;
+        document.querySelector('meta[name="theme-color"]').content = isDark ? '#101b21' : '#f3f8f8';
+        try {
+          localStorage.setItem('medora-theme', theme);
+        } catch {
+          // The selected theme still works for this page if storage is unavailable.
+        }
+      }
+
+      async function loadDoctors() {
+        try {
+          let bookedSlots = [];
+          try {
+            bookedSlots = JSON.parse(localStorage.getItem('medora-booked-slots') || '[]');
+            if (!Array.isArray(bookedSlots)) bookedSlots = [];
+          } catch {
+            bookedSlots = [];
+          }
+          doctors = demoDoctors.map((doctor) => ({
+            ...doctor,
+            available_slots: doctor.available_slots.filter((slot) => !bookedSlots.includes(String(slot.id)))
+          }));
+          message.textContent = '';
+          renderFilters();
+          renderDoctors();
+        } catch (error) {
+          console.error('Could not initialize the built-in doctor list:', error);
+          doctors = demoDoctors.map((doctor) => ({ ...doctor, available_slots: [...doctor.available_slots] }));
+          renderFilters();
+          renderDoctors();
+        }
+      }
+
+      filterToggle.addEventListener('click', () => {
+        const expanded = filterToggle.getAttribute('aria-expanded') !== 'true';
+        filterToggle.setAttribute('aria-expanded', String(expanded));
+        filterPanel.classList.toggle('is-open', expanded);
+        filterPanel.setAttribute('aria-hidden', String(!expanded));
+        filterToggle.setAttribute('aria-label', t('filterAria'));
+      });
+      themeToggle.addEventListener('click', () => {
+        theme = theme === 'light' ? 'dark' : 'light';
+        updateThemeButton();
+      });
+      languageSelect.addEventListener('change', () => {
+        language = languageSelect.value;
+        try {
+          localStorage.setItem('medora-language', language);
+        } catch {
+          // Language switching remains available for the current page.
+        }
+        applyLanguage();
+      });
+      $('#apply-button').addEventListener('click', () => openBooking());
+      searchInput.addEventListener('input', renderDoctors);
+      specialtyFilter.addEventListener('change', renderDoctors);
+      nameFilter.addEventListener('change', renderDoctors);
+      experienceFilter.addEventListener('change', renderDoctors);
+      $('#clear-filters').addEventListener('click', () => {
+        searchInput.value = '';
+        specialtyFilter.value = 'all';
+        nameFilter.value = 'all';
+        experienceFilter.value = 'all';
+        renderDoctors();
+      });
+      $('#dialog-close').addEventListener('click', () => bookingDialog.close());
+      bookingDoctorSelect.addEventListener('change', () => {
+        selectedDoctorId = bookingDoctorSelect.value || null;
+        const doctor = doctors.find((item) => String(item.id) === selectedDoctorId);
+        if (doctor) {
+          renderSelectedDoctor(doctor);
+          renderSlots(doctor);
+        } else {
+          bookingDoctor.replaceChildren();
+          renderSlots(null);
+        }
+      });
+      bookingDialog.addEventListener('click', (event) => {
+        if (event.target === bookingDialog) bookingDialog.close();
+      });
+
+      bookingForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        dialogMessage.textContent = '';
+        dialogMessage.className = 'dialog-message';
+        submitButton.disabled = true;
+        const form = new FormData(bookingForm);
+        const patientName = String(form.get('full_name') || '').trim();
+        const phone = String(form.get('phone') || '').trim();
+        const doctor = doctors.find((item) => String(item.id) === String(form.get('doctor_id')));
+        const selectedSlotId = String(form.get('schedule_id') || '');
+        const selectedSlot = doctor?.available_slots.find((slot) => String(slot.id) === selectedSlotId);
+
+        if (patientName.length < 2 || !/^[+0-9().\-\s]{7,32}$/.test(phone) || !doctor || !selectedSlot) {
+          dialogMessage.textContent = !/^[+0-9().\-\s]{7,32}$/.test(phone) ? t('invalidPhone') : t('invalidBooking');
+          dialogMessage.className = 'dialog-message error';
+          submitButton.disabled = false;
+          return;
+        }
+
+        try {
+          applications.push({
+            full_name: patientName,
+            phone,
+            doctor_id: doctor.id,
+            doctor_name: doctor.full_name,
+            schedule_id: selectedSlot.id,
+            available_date: selectedSlot.date,
+            available_time: selectedSlot.time,
+            submitted_at: new Date().toISOString()
+          });
+          doctor.available_slots = doctor.available_slots.filter((slot) => String(slot.id) !== selectedSlotId);
+          try {
+            const bookedSlots = JSON.parse(localStorage.getItem('medora-booked-slots') || '[]');
+            const updatedBookedSlots = Array.isArray(bookedSlots) ? bookedSlots : [];
+            if (!updatedBookedSlots.includes(selectedSlotId)) updatedBookedSlots.push(selectedSlotId);
+            localStorage.setItem('medora-booked-slots', JSON.stringify(updatedBookedSlots));
+          } catch {
+            // The appointment is still confirmed for this session if storage is blocked.
+          }
+
+          dialogMessage.textContent = t('appointmentConfirmed');
+          dialogMessage.className = 'dialog-message';
+          showSuccessToast(t('successToast'));
+          renderDoctors();
+          renderSelectedDoctor(doctor);
+          renderSlots(doctor);
+          submitButton.disabled = true;
+        } catch (error) {
+          console.error('Could not submit the appointment application:', error);
+          dialogMessage.textContent = t('bookingError');
+          dialogMessage.className = 'dialog-message error';
+          submitButton.disabled = false;
+        }
+      });
+
+      languageSelect.value = language;
+      document.documentElement.dataset.theme = theme;
+      filterToggle.setAttribute('aria-label', t('filterAria'));
+      applyLanguage();
+      loadDoctors();
+    })();
+  </script>
+</body>
+</html>
